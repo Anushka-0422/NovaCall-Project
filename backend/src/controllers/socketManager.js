@@ -15,19 +15,24 @@ export const connectToSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
+    console.log("Something connected to socket");
     socket.on("join-call", (path) => {
       if (connections[path] === undefined) {
         connections[path] = [];
       }
       connections[path].push(socket.id);
-      timeOnline[socket.id] = new Data();
+      timeOnline[socket.id] = new Date();
 
       // connections[path].array.forEach(element => {
       //   io.to(element)
       // });
 
       for (let a = 0; a < connections[path].length; a++) {
-        io.to(connections[path][a].emit("user-joined", socket.id));
+        io.to(connections[path][a]).emit(
+          "user-joined",
+          socket.id,
+          connections[path], // send full clients array
+        );
       }
 
       if (messages[path] != undefined) {
@@ -83,7 +88,7 @@ export const connectToSocket = (server) => {
           if (v[a] === socket.id) {
             key = k;
             for (let a = 0; a < connections[key].length; ++a) {
-              io.to(connections[key][a].emit("user-left", socket.id));
+              io.to(connections[key][a]).emit("user-left", socket.id);
 
               var index = connections[key].indexOf(socket.id);
               connections[key].slice(index, 1);

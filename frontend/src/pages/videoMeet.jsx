@@ -91,9 +91,9 @@ export default function VideoMeet() {
     }
   };
 
-  // useEffect(() => {
-  //   getPermissions();
-  // }, []);
+  useEffect(() => {
+    getPermissions();
+  }, []);
 
   let getUserMediaSuccess = (stream) => {
     try {

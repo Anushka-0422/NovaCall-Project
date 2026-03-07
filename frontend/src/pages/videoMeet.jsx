@@ -1,9 +1,18 @@
-import { useEffect } from "react";
-import "../styles/videoComponent.css";
-import { useRef, useState } from "react";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+import { useEffect, useRef, useState} from "react";
 import io from "socket.io-client";
+import {TextField, IconButton} from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+// import Input from "@mui/base";
+import VideocamIcon from "@mui/icons-material/Videocam";
+import VidecamOffIcon from "@mui/icons-material/VideocamOff";
+import CallEndIcon from "@mui/icons-material/CallEnd";
+import MicIcon from "@mui/icons-material/Mic";
+import MicOffIcon from "@mui/icons-material/MicOff";
+import ScreenShareIcon from "@mui/icons-material/ScreenShare";
+import ScreenShareStopIcon from "@mui/icons-material/StopScreenShare"
+import ChatIcon from "@mui/icons-material/Chat";
+import styles from "../styles/videoComponent.module.css";
+
 
 const server_url = "http://localhost:8000";
 
@@ -45,7 +54,6 @@ export default function VideoMeet() {
   // }
 
   const getPermissions = async () => {
-
     try {
       const videoPermission = await navigator.mediaDevices.getUserMedia({
         video: true,
@@ -64,7 +72,6 @@ export default function VideoMeet() {
       } else {
         setAudioAvailable(false);
       }
-
 
       if (navigator.mediaDevices.getDisplayMedia) {
         setScreenAvailable(true);
@@ -85,7 +92,6 @@ export default function VideoMeet() {
           }
         }
       }
-
     } catch (error) {
       console.log(error);
     }
@@ -137,8 +143,9 @@ export default function VideoMeet() {
           }
 
           //TODO BackSilence
-          let blackSlience = (...args) => new MediaStream([black(...args)]);
-          window.localStream = blackSlience();
+          let blackSilence = (...args) =>
+            new MediaStream([black(...args), silence()]);
+          window.localStream = blackSilence();
           localVideoRef.current.srcObject = window.localStream;
 
           for (let id in connections) {
@@ -308,8 +315,9 @@ export default function VideoMeet() {
             connections[socketListId].addStream(window.localStream);
           } else {
             // TODO
-            let blackSlience = (...args) => new MediaStream([black(...args)]);
-            window.localStream = blackSlience();
+            let blackSilence = (...args) =>
+              new MediaStream([black(...args), silence()]);
+            window.localStream = blackSilence();
             connections[socketListId].addStream(window.localStream);
           }
         });
@@ -377,11 +385,34 @@ export default function VideoMeet() {
           </div>
         </>
       ) : (
-        <>
-          <video ref={localVideoRef} autoPlay muted></video>
+        <div className={styles.meetVideoContainer}>
+
+          <div className={styles.buttonContainer}>
+            <IconButton style={{color: "white"}}>
+              {(video === true) ? <VideocamIcon/> : <VidecamOffIcon/>}
+            </IconButton>
+            <IconButton style={{color: "red"}}>
+              <CallEndIcon/>
+            </IconButton>
+            <IconButton style={{color: "white"}}>
+              {(audio === true) ? <MicIcon/> : <MicOffIcon/>}
+            </IconButton>
+            {screenAvailable === true?
+            <IconButton style={{color: "white"}}>
+              {(screen === true) ? <ScreenShareIcon/> : <ScreenShareStopIcon/>}
+            </IconButton> : <></> }
+            <Badge badgeContent={newMessages} max={999} color="secondary">
+              <IconButton style={{color: "white"}}>
+              <ChatIcon/>
+            </IconButton>
+            </Badge>
+
+          </div>
+
+          <video className={styles.meetUserVideo} ref={localVideoRef} autoPlay muted></video>
 
           {videos.map((video) => (
-            <div key={video.socketId}>
+            <div className={styles.conferenceView} key={video.socketId}>
               <h2>{video.socketId}</h2>
               <video
                 data-socket={video.socketId}
@@ -391,11 +422,10 @@ export default function VideoMeet() {
                   }
                 }}
                 autoPlay
-                playsInline
               ></video>
             </div>
           ))}
-        </>
+        </div>
       )}
     </div>
   );

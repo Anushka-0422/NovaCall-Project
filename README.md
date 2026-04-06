@@ -43,14 +43,14 @@ New features and improvements are being actively added.
 git clone : https://github.com/your-username/novacall.git
 
 2. Setup Backend
-cd backend
-npm install
-npm start
+- cd backend
+- npm install
+- npm start
 
 4. Setup Frontend
-cd frontend
-npm install
-npm run dev
+- cd frontend
+- npm install
+- npm run dev
 
 ---
 
